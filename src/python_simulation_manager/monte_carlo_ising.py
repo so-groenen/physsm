@@ -81,15 +81,13 @@ class MonteCarloExperiment(ExperimentHandler):
     @override
     def run(self, L):
         command  = f"cargo run --release -- {self.get_parameter_file(L)}"
-        time     = -1
         print(f"Command: \"{command}\"")   
         with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, text=True, stderr=subprocess.STDOUT) as stream:
             for line in stream.stdout:
                 if line.__contains__("Time taken: "):
                     time_str = line.split("Time taken: ")[1]
-                    time     = int(time_str.removesuffix("s\n"))
+                    # time     = int(time_str.removesuffix("s\n"))
                 print(f" * From Rust: {line}", end='') 
-        return time
     
     def set_struct_fact_measure(self, val: bool):
         self.measure_correlation_length = val
