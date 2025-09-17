@@ -43,6 +43,9 @@ class MonteCarloData(ExperimentOutput):
             self.mag_susceptibility.append(float(slines[4]))
             self.correlation_length.append(float(slines[5]))
             
+            
+            
+            
 class MonteCarloExperiment(ExperimentHandler):
     def __init__(self, name, folder, lengths):
         
