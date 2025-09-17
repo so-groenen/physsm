@@ -78,8 +78,7 @@ class MonteCarloExperiment(ExperimentHandler):
             f.write(f"measure_struct_fact: {self.measure_correlation_length}\n")
             f.write(f"outputfile: {self.out_files[L]}\n")
 
-    @override
-    def run(self, L):
+    def perform_rust_computation(self, L):
         command  = f"cargo run --release -- {self.get_parameter_file(L)}"
         time     = -1
         print(f"Command: \"{command}\"")   

@@ -30,9 +30,6 @@ class ExperimentHandler(Protocol):
     
     def set_result_type(self, output_file: str) -> ExperimentOutput:
         raise NotImplementedError()
-
-    def run(self, L):
-        raise NotImplementedError()
     
     def write_parameter_file(self, L: int, rounding = 3) -> None:
         if len(self.missing_parameters()):
