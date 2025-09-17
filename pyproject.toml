@@ -1,0 +1,16 @@
+[project]
+name = "python-simulation-manager"
+version = "0.1.0"
+description = "Small Monte Carlo Simulation Manager Interface written in Python."
+readme = "README.md"
+authors = [
+    { name = "so-groenen", email = "" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.3.3",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.18,<0.9.0"]
+build-backend = "uv_build"

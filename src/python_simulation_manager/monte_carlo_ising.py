@@ -2,6 +2,7 @@ import numpy as np
 from .experiment_base.experiment_handler import array_to_str, ExperimentHandler
 from .experiment_base.experiment_output import ExperimentOutput
 from typing import override
+import subprocess
 
 def get_length_from_dicts(therm_steps: dict, measure_steps: dict):
     lengths = []
@@ -23,7 +24,6 @@ class MonteCarloData(ExperimentOutput):
         self.elapsed_time       = -1
         self.correlation_length = []
 
-    # Virtual function implementation:
     @override
     def parse_output(self, line_number, lines):
         if line_number == 0:
@@ -55,12 +55,10 @@ class MonteCarloExperiment(ExperimentHandler):
         self.temperatures  = None
         self.measure_correlation_length = False
         
-    # Virtual function implementation:
     @override
     def set_result_type(self, output_file) -> ExperimentOutput:
         return MonteCarloData(output_file)
     
-    # Virtual function implementation:
     @override
     def missing_parameters(self) -> list: 
         missing = []
@@ -69,7 +67,6 @@ class MonteCarloExperiment(ExperimentHandler):
                 missing.append(key)
         return missing
 
-    # Virtual function implementation:
     @override
     def write_formated(self, L, rounding=3):
         with open(self.get_parameter_file(L), "w") as f:
@@ -81,6 +78,19 @@ class MonteCarloExperiment(ExperimentHandler):
             f.write(f"measure_struct_fact: {self.measure_correlation_length}\n")
             f.write(f"outputfile: {self.out_files[L]}\n")
 
+    @override
+    def run(self, L):
+        command  = f"cargo run --release -- {self.get_parameter_file(L)}"
+        time     = -1
+        print(f"Command: \"{command}\"")   
+        with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, text=True, stderr=subprocess.STDOUT) as stream:
+            for line in stream.stdout:
+                if line.__contains__("Time taken: "):
+                    time_str = line.split("Time taken: ")[1]
+                    time     = int(time_str.removesuffix("s\n"))
+                print(f" * From Rust: {line}", end='') 
+        return time
+    
     def set_struct_fact_measure(self, val: bool):
         self.measure_correlation_length = val
         
