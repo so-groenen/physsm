@@ -1,10 +1,13 @@
-from typing import Protocol
+from typing import Protocol 
 import numpy as np
 
 
 class ExperimentOutput(Protocol):
     def __init__(self, file_name):
         self.file_name = file_name
+
+    def parse_output(self, line_number: int, lines: str):
+        raise NotImplementedError()
 
     def has_file(self)->bool:
         try:
@@ -26,8 +29,6 @@ class ExperimentOutput(Protocol):
             if name != "elapsed_time":
                 self.__to_nd_array(name)
 
-    def parse_output(self, line_number: int, lines: str):
-        pass
 
     def grab_files(self) -> None:
         if not self.has_file():

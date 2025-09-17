@@ -1,6 +1,7 @@
 import numpy as np
 from experiment_base.experiment_handler import array_to_str, ExperimentHandler
 from experiment_base.experiment_output import ExperimentOutput
+from typing import override
 
 def get_length_from_dicts(therm_steps: dict, measure_steps: dict):
     lengths = []
@@ -23,6 +24,7 @@ class MonteCarloData(ExperimentOutput):
         self.correlation_length = []
 
     # Virtual function implementation:
+    @override
     def parse_output(self, line_number, lines):
         if line_number == 0:
             slines = lines.split(':')
@@ -51,10 +53,12 @@ class MonteCarloExperiment(ExperimentHandler):
         self.measure_correlation_length = False
         
     # Virtual function implementation:
+    @override
     def set_result_type(self, output_file) -> ExperimentOutput:
         return MonteCarloData(output_file)
     
     # Virtual function implementation:
+    @override
     def missing_parameters(self) -> list: 
         missing = []
         for (key, val) in vars(self).items():
@@ -63,8 +67,9 @@ class MonteCarloExperiment(ExperimentHandler):
         return missing
 
     # Virtual function implementation:
+    @override
     def write_formated(self, L, rounding=3):
-        with open(self.param_files[L], "w") as f:
+        with open(self.get_parameter_file(L), "w") as f:
             f.write(f"rows: {L}\n")
             f.write(f"cols: {L}\n")
             f.write(f"therm_steps: {self.therm_steps[L]}\n")
@@ -105,3 +110,6 @@ class MonteCarloExperiment(ExperimentHandler):
         new_exp.set_temperatures(temperatures)
         return new_exp
         
+if __name__ == "__main":
+    
+    None

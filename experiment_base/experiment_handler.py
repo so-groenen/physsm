@@ -28,6 +28,12 @@ class ExperimentHandler(Protocol):
     def missing_parameters(self) -> dict:
         raise NotImplementedError()
     
+    def set_result_type(self, output_file: str) -> ExperimentOutput:
+        raise NotImplementedError()
+
+    def run(self, L):
+        raise NotImplementedError()
+    
     def write_parameter_file(self, L: int, rounding = 3) -> None:
         if len(self.missing_parameters()):
             print(f">> Error Missing parameters: {self.missing_parameters()}")
@@ -96,7 +102,9 @@ class ExperimentHandler(Protocol):
                 print(f"-- not written yet: {files}")
         return has_all_files
      
-        
+    def get_parameter_file(self, L):
+        return self.param_files[L]
+    
     def are_results_available(self):
         all_available = True
         some_availabe = False
@@ -137,10 +145,7 @@ class ExperimentHandler(Protocol):
         except FileNotFoundError as e:
             return False
     
-    def set_result_type(self, output_file: str) -> ExperimentOutput:
-        raise NotImplementedError()
 
-        
     def get_results(self) -> dict[int, ExperimentOutput]: #tuple[np.ndarray, dict[int, MonteCarloData]]:
         print("")
         has_results = False
