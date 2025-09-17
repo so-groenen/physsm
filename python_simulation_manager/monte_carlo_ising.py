@@ -1,6 +1,6 @@
 import numpy as np
-from experiment_base.experiment_handler import array_to_str, ExperimentHandler
-from experiment_base.experiment_output import ExperimentOutput
+from .experiment_base.experiment_handler import array_to_str, ExperimentHandler
+from .experiment_base.experiment_output import ExperimentOutput
 from typing import override
 
 def get_length_from_dicts(therm_steps: dict, measure_steps: dict):
