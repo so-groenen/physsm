@@ -1,4 +1,4 @@
-## Monte Carlo Simulation Manager Interface written in Python. 
+## Small Monte Carlo Simulation Manager Interface written in Python. 
 The goal is to handle 2D simulations (mostly on a square lattice) written in low-level languages (C, C++, Rust) from a Python notebook interface and perform experiment with increasing system sizes "L".<br>
 Please have a look at 
 ``` 
