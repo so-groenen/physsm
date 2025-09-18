@@ -41,6 +41,7 @@ class RustIsingExperiment(ExperimentHandler):
     def set_result_type(self, output_file) -> ExperimentOutput:
         return IsingData(output_file)
    
+    @override
     def perform_rust_computation(self, L):
         command  = f"cargo run --release -- {self.get_parameter_file_relative(L)}"
         cwd      = self.get_rust_dir()
@@ -54,17 +55,17 @@ class RustIsingExperiment(ExperimentHandler):
                 print(f" * From Rust: {line}", end='') 
         return time
     
-class RustExperimentBuilder:
+class RustIsingExperimentBuilder:
     def __init__(self, name: str, folder: str, rust_dir: str):
         self.name: str     = name
         self.folder: str   = folder
         self.rust_dir: str = rust_dir
 
-    def new_from_parameters(self: str, therm_steps: dict, measure_steps: dict, temperatures: np.ndarray):
+    def new_from_parameters(self: str, therm_steps: dict, measure_steps: dict, temperatures: np.ndarray, measure_struct_fact: bool = False):
      
         new_exp = RustIsingExperiment(self.name, self.folder, self.rust_dir)
         new_exp.add_static_parameter("temperatures", temperatures)
-        new_exp.add_static_parameter("measure_struct_fact", False)
+        new_exp.add_static_parameter("measure_struct_fact", measure_struct_fact)
 
         new_exp.add_scaling_parameter("therm_steps", therm_steps)
         new_exp.add_scaling_parameter("measure_steps", measure_steps)

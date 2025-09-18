@@ -1,4 +1,4 @@
-## Small Monte Carlo Simulation Manager Interface written in Python. 
+# Small Monte Carlo Simulation Manager Interface written in Python. 
 The goal of this small package is to handle 2D simulations written in low-level languages (C, C++, Rust) from a Python notebook interface, and perform numerical scaling experiments, that is, experiments with increasing system size "L".<br>
 For now, executing Rust programm is built-in, but C/C++ is on the TODO list. 
 
@@ -14,7 +14,7 @@ builder              = RustExperimentBuilder(name="ising_overview", folder="resu
 experiment = builder.new_from_parameters(thermalization_steps, measure_steps, temperatures)
 experiment.write_parameter_files()
 ```
-Here the parameters of the form `parameters_LxL.txt` will be written in `ising_rust/results/ising_overview`, where the Rust programm could find them and be launched from a python notebook with
+Here the parameters of the form `parameters_LxL.txt` will be written in the `ising_rust/results/ising_overview` folder, where the Rust programm could find them. Then, we could launch the Rust programm the python notebook with
 
 ```Python
 for L in experiment.get_lengths():
@@ -35,7 +35,7 @@ For the full example, please look at:
 example.ipynb
 ```
 as well as the Rust code in `rust_example/src`.<br>
-## Details of example.ipynb:
+# Details of example.ipynb:
 Let us assume we have a Rust program which will read a file and needs the following:
 * A length called **Lx**
 * An array called **my_array**
@@ -86,12 +86,12 @@ class MyTestOutput(ExperimentOutput):
 
 ### Step 2) Defining the ExperimentHandler
 Let us import the Handler:
-
-
-Now we construct our Experiment Handler. It will derive from the `ExperimentHandler` base class. 
 ```Python
 from python_simulation_manager.experiment_base.experiment_handler import ExperimentHandler
 ```
+
+Now we construct our Experiment Handler. It will derive from the `ExperimentHandler` base class. 
+
 It only needs to now that the result will be of type `MyTestOutput`:
 ```Python
 class MyTestExperiment(ExperimentHandler):
@@ -102,7 +102,12 @@ class MyTestExperiment(ExperimentHandler):
 ```
 ### Step 3) Defining the Builder
 
-The builder's goal is to make our live easier: First it will need the default parameter for Handler, which are: the experiment name `name`, the folder where the experiment goes, `folder`, and the location of the Rust project, `rust_dir` dir.
+The builder's goal is to make our live easier: First it will need the default parameter for Handler, which are: 
+
+* the experiment name `name`,
+* the folder where the experiment goes, `folder`,
+* and the location of the Rust project, `rust_dir`.
+
 The resulting parameters & Output will go to `rust_dir/folder/name`.<br>
 Then in the builder method we want a _static_parameter_ (meaning, it does NOT depend on _L_), called `my_array` which is a numpy array,
 another _static_parameter_ called `my_bool`. <br> 
@@ -131,7 +136,7 @@ Now we can make use of our example. First we create our builder, which will save
 ```python
 test_builder = TestExperimentBuilder(name="test_experiment", folder="test_results", rust_dir="rust_example")
 ```
-Then we can construct our experiment and write the parameter fiels:
+Then we can construct our experiment and write the parameter files:
 ```Python
 an_array          = np.arange(0, 10, 1)
 a_boolean         = True
@@ -159,19 +164,33 @@ for L in test_exp.get_lengths():
     test_exp.perform_rust_computation(L)
 ```
 This will call `cargo run --release -- rust_example/test_results/test_experiment/...` under the hood.
-Stdout in python:
+The resulting stdoutput in the python notebook will look like:
 ```powershell
+Command: "cargo run --release -- test_results/test_experiment/parameter_2x2.txt"
 * From Rust:      Running `target\release\rust_example.exe test_results/test_experiment/parameter_2x2.txt`
- * From Rust: Reading parameters:
- * From Rust: Lx: 2
- * From Rust: Ly: 2
- * From Rust: my_array: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
- * From Rust: my_bool: False
- * From Rust: steps: 100
- * From Rust: outputfile: test_results/test_experiment/out_2x2.txt
+* From Rust: Reading parameters:
+* From Rust: Lx: 2
+* From Rust: Ly: 2
+* From Rust: my_array: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+* From Rust: my_bool: True
+* From Rust: steps: 100
+* From Rust: outputfile: test_results/test_experiment/out_2x2.txt
 * From Rust: Writing in test_results/test_experiment/out_2x2.txt
+
+Command: "cargo run --release -- test_results/test_experiment/parameter_4x4.txt"
+ * From Rust:      Running `target\release\rust_example.exe test_results/test_experiment/parameter_4x4.txt`
+ * From Rust: Reading parameters:
+ * From Rust: Lx: 4
+ * From Rust: Ly: 4
+ * From Rust: my_array: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+ * From Rust: my_bool: True
+ * From Rust: steps: 1000
+ * From Rust: outputfile: test_results/test_experiment/out_4x4.txt
+ * From Rust: Writing in test_results/test_experiment/out_4x4.txt
 ```
-And similarly for 4x4 etc... <br>
+
+etc... <br>
+
 Then, finally
 ```python
 results = test_exp.get_results()
@@ -200,4 +219,20 @@ Hello world! [Lx=8]
 Sum            = 16.0
 multiplication = 64.0
 ```
- 
+
+# Installing the package:
+
+Add to your Python uv project:
+```
+uv add "python_simulation_manager @ git+https://github.com/so-groenen/python_simulation_manager"
+```
+Install the package to your uv virtual environnement:
+```
+uv pip install "git+https://github.com/so-groenen/python_simulation_manager"
+```
+<br>
+More on managing dependencies with uv:
+
+[https://docs.astral.sh/uv/pip/packages](https://docs.astral.sh/uv/pip/packages/)  <br>
+[https://docs.astral.sh/uv/concepts/projects/dependencies/](https://docs.astral.sh/uv/concepts/projects/dependencies/)  <br>
+If you are not familiar: [docs.astral.sh/uv/](https://docs.astral.sh/uv/)
