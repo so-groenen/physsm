@@ -1,0 +1,7 @@
+rows: 4
+cols: 4
+temperatures: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+measure_struct_fact: False
+therm_steps: 500000
+measure_steps: 500000
+outputfile: results/ising_overview/out_4x4.txt
