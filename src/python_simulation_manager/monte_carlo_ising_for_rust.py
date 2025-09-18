@@ -12,7 +12,7 @@ def get_length_from_dicts(therm_steps: dict, measure_steps: dict):
         lengths.append(L1)
     return lengths
 
-class MonteCarloData(ExperimentOutput):
+class IsingData(ExperimentOutput):
     def __init__(self, file_name):
         super().__init__(file_name)
 
@@ -46,7 +46,7 @@ class MonteCarloData(ExperimentOutput):
             
             
             
-class MonteCarloExperiment(ExperimentHandler):
+class RustIsingExperiment(ExperimentHandler):
     def __init__(self, name, folder, lengths):
         
         super().__init__(name, folder, lengths)

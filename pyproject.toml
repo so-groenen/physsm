@@ -1,5 +1,5 @@
 [project]
-name = "python-simulation-manager"
+name = "python_simulation_manager"
 version = "0.1.0"
 description = "Small Monte Carlo Simulation Manager Interface written in Python."
 readme = "README.md"
