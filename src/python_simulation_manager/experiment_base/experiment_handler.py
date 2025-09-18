@@ -25,7 +25,8 @@ class ExperimentHandler(Protocol):
         self.path                       = f"{self.rust_proj_dir}/{self.folder}/{self.name}"
         self.scaling_names              = ["rows", "cols"]
         self.__init_directory()
-
+        self.__set_files()
+        
     def get_lengths(self) -> int:
         return self.lengths
 
@@ -173,7 +174,7 @@ class ExperimentHandler(Protocol):
     def __set_files(self):
         print(">> Setting file paths:")
         if self.lengths is None:
-            print(">> Set Files: Error: No lengths found!")
+            # print(">> Set Files: Error: No lengths found!")
             return
 
         for L in self.lengths:

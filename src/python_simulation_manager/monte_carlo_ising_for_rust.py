@@ -61,7 +61,7 @@ class RustIsingExperimentBuilder:
         self.folder: str   = folder
         self.rust_dir: str = rust_dir
 
-    def new_from_parameters(self: str, therm_steps: dict, measure_steps: dict, temperatures: np.ndarray, measure_struct_fact: bool = False):
+    def new_from_parameters(self, therm_steps: dict, measure_steps: dict, temperatures: np.ndarray, measure_struct_fact: bool = False) -> RustIsingExperiment:
      
         new_exp = RustIsingExperiment(self.name, self.folder, self.rust_dir)
         new_exp.add_static_parameter("temperatures", temperatures)
@@ -69,8 +69,13 @@ class RustIsingExperimentBuilder:
 
         new_exp.add_scaling_parameter("therm_steps", therm_steps)
         new_exp.add_scaling_parameter("measure_steps", measure_steps)
-        
         return new_exp
+    
+    def load(self, lengths: list[int]) -> RustIsingExperiment:
+        new_exp = RustIsingExperiment(self.name, self.folder, self.rust_dir, lengths)
+        return new_exp
+
+    
     
 if __name__ == "__main":
     None
