@@ -4,14 +4,6 @@ from .experiment_base.experiment_output import ExperimentOutput
 from typing import override
 import subprocess
 
-def get_length_from_dicts(therm_steps: dict, measure_steps: dict):
-    lengths = []
-    for (L1, L2) in zip(therm_steps.keys(), measure_steps.keys()):
-        if L1 != L2:
-            return None
-        lengths.append(L1)
-    return lengths
-
 class IsingData(ExperimentOutput):
     def __init__(self, file_name):
         super().__init__(file_name)
@@ -42,84 +34,42 @@ class IsingData(ExperimentOutput):
             self.specific_heat.append(float(slines[3]))
             self.mag_susceptibility.append(float(slines[4]))
             self.correlation_length.append(float(slines[5]))
-            
-            
-            
-            
+                       
 class RustIsingExperiment(ExperimentHandler):
-    def __init__(self, name, folder, lengths):
-        
-        super().__init__(name, folder, lengths)
-        self.therm_steps   = None
-        self.measure_steps = None
-        self.temperatures  = None
-        self.measure_correlation_length = False
-        
+
     @override
     def set_result_type(self, output_file) -> ExperimentOutput:
-        return MonteCarloData(output_file)
-    
-    @override
-    def missing_parameters(self) -> list: 
-        missing = []
-        for (key, val) in vars(self).items():
-            if val is None:
-                missing.append(key)
-        return missing
-
-    @override
-    def write_formated(self, L, rounding=3):
-        with open(self.get_parameter_file(L), "w") as f:
-            f.write(f"rows: {L}\n")
-            f.write(f"cols: {L}\n")
-            f.write(f"therm_steps: {self.therm_steps[L]}\n")
-            f.write(f"measure_steps: {self.measure_steps[L]}\n")
-            f.write(f"temperatures: {array_to_str(self.temperatures, rounding)}\n")
-            f.write(f"measure_struct_fact: {self.measure_correlation_length}\n")
-            f.write(f"outputfile: {self.out_files[L]}\n")
-
+        return IsingData(output_file)
+   
     def perform_rust_computation(self, L):
-        command  = f"cargo run --release -- {self.get_parameter_file(L)}"
+        command  = f"cargo run --release -- {self.get_parameter_file_relative(L)}"
+        cwd      = self.get_rust_dir()
+        time     = -1
         print(f"Command: \"{command}\"")   
-        with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, text=True, stderr=subprocess.STDOUT) as stream:
+        with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, text=True, stderr=subprocess.STDOUT, cwd=cwd) as stream:
             for line in stream.stdout:
                 if line.__contains__("Time taken: "):
                     time_str = line.split("Time taken: ")[1]
-                    # time     = int(time_str.removesuffix("s\n"))
+                    time     = int(time_str.removesuffix("s\n"))
                 print(f" * From Rust: {line}", end='') 
+        return time
     
-    def set_struct_fact_measure(self, val: bool):
-        self.measure_correlation_length = val
+class RustExperimentBuilder:
+    def __init__(self, name: str, folder: str, rust_dir: str):
+        self.name: str     = name
+        self.folder: str   = folder
+        self.rust_dir: str = rust_dir
+
+    def new_from_parameters(self: str, therm_steps: dict, measure_steps: dict, temperatures: np.ndarray):
+     
+        new_exp = RustIsingExperiment(self.name, self.folder, self.rust_dir)
+        new_exp.add_static_parameter("temperatures", temperatures)
+        new_exp.add_static_parameter("measure_struct_fact", False)
+
+        new_exp.add_scaling_parameter("therm_steps", therm_steps)
+        new_exp.add_scaling_parameter("measure_steps", measure_steps)
         
-    def set_parameters(self, therm_steps: dict, measure_steps: dict):
-        param_lengths = get_length_from_dicts(therm_steps, measure_steps)
-        if param_lengths is None:
-            print(">> therm steps & measure steps should use same lengths")
-        if param_lengths != self.lengths:
-            print(">> Monte carlo parameter lengths do not match original lengths!")
-        else:
-            self.measure_steps = measure_steps
-            self.therm_steps   = therm_steps
-        print(">> Monte Carlo parameters set!")
-    
-    def set_temperatures(self, temps: np.ndarray):
-        if isinstance(temps, np.ndarray):
-            print(">> Temperatures set!")
-            self.temperatures = temps
-        else:
-            print(">> Temperatures not numpy array!")
-    
-    @staticmethod
-    def new_from_parameters(name: str, folder: str, therm_steps: dict, measure_steps: dict, temperatures: np.ndarray):
-        lengths = []
-        for (L, _) in zip(therm_steps.keys(), measure_steps.keys()):
-            lengths.append(L)
-                    
-        new_exp = MonteCarloExperiment(name, folder, lengths)
-        new_exp.set_parameters(therm_steps, measure_steps)
-        new_exp.set_temperatures(temperatures)
         return new_exp
-        
-if __name__ == "__main":
     
+if __name__ == "__main":
     None
