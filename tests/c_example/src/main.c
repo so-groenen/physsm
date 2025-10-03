@@ -15,106 +15,13 @@ typedef struct Vec
     size_t capacity;
 } Vector;
 
-bool vector_allocate(Vector* vec, size_t capacity)
-{
-    float* data = calloc(capacity, sizeof(float));
-    if (data == NULL)
-    {
-        return false;
-    }
-    
-    *vec = (Vector){
-        .data = data,
-        .size = 0,
-        .capacity  = capacity,
-    };
-    return true;
-}
-
-void vector_destroy(Vector* vec)
-{
-    free(vec->data);
-    vec->data = NULL;
-}
-
-bool vector_push(Vector* vec, float val)
-{
-    if (vec->size == vec->capacity)
-    {
-        float* data = realloc(vec->data, 2UL * vec->capacity * sizeof(float));
-        if (!data)
-        {
-            vector_destroy(vec);
-            return false;
-        }
-        vec->capacity *= 2;
-        vec->data      = data;
-    }
-    vec->data[vec->size] = val;
-    vec->size++;
-    return true;
-}
-
-
-void remove_line_break(char* line)
-{
-    size_t n = strcspn(line, "\n");
-    if (n < SIZE_MAX)
-    {
-        line[n] = '\0';
-    }
-}
-void remove_white_space(char* line)
-{
-    while (strcspn(line, " ") == 0)
-    {
-        memmove(line, line+1, strlen(line));       
-    }
-    while (strcspn(line, " ") == strlen(line)-1)
-    {
-        line[strlen(line)-1] = '\0';       
-    }
-}
-bool set_key_value(const char* line, char* key, char* value, const char* delim, size_t len)
-{
-    size_t n = strcspn(line, delim);
-    if (n == SIZE_MAX)
-    {
-        return false;
-    }
-
-    memset(key, '\0', len);
-    memset(value, '\0', len);
-
-    strncpy(key, line, n);
-    key[n] = '\0';
-    remove_white_space(key);
-    
-    strncpy(value, line+n+1, strlen(line+n+1));
-    // remove_line_break(value);
-    remove_white_space(value);
-    return true;
-}
-
-
-// vv this performs a destructive tokenization of "buffer", consider copying the data first...
-bool vector_fill_from_str(Vector* vec, char* buffer, const char* delim) 
-{
-    char* num_str    = strtok(buffer, delim);
-    char* error_char = NULL;
-    while (num_str != NULL)
-    {   
-        float num = strtof(num_str, &error_char);
-        if (error_char != num_str + strlen(num_str)) // error_char points at the end if everything goes as expected..
-        {
-            return false;
-        }
-        
-        vector_push(vec, num);
-        num_str = strtok(NULL, delim);
-    }       
-    return true;
-}
+bool vector_allocate(Vector* vec, size_t capacity);
+void vector_destroy(Vector* vec);
+bool vector_push(Vector* vec, float val);
+bool vector_fill_from_str(Vector* vec, char* buffer, const char* delim);
+void remove_line_break(char* line);
+void trim(char* line);
+bool set_key_value(const char* line, char* key, char* value, const char* delim, size_t len);
 
 int main(int argc, char* argv[])
 {
@@ -132,8 +39,8 @@ int main(int argc, char* argv[])
 
     size_t length             = 0;
     size_t monte_carlo_trials = 0;
-    Vector vec;
 
+    Vector vec = {0};
     if(!vector_allocate(&vec, VECTOR_CAPACITY))
     {
         fprintf(stderr, "Allocation fail!");
@@ -190,4 +97,106 @@ int main(int argc, char* argv[])
     fclose(outputfile);
     vector_destroy(&vec);
     return EXIT_SUCCESS;
+}
+
+
+bool vector_allocate(Vector* vec, size_t capacity)
+{
+    float* data = calloc(capacity, sizeof(float));
+    if (data == NULL)
+    {
+        return false;
+    }
+    
+    *vec = (Vector){
+        .data = data,
+        .size = 0,
+        .capacity  = capacity,
+    };
+    return true;
+}
+
+void vector_destroy(Vector* vec)
+{
+    free(vec->data);
+    vec->data = NULL;
+}
+
+bool vector_push(Vector* vec, float val)
+{
+    if (vec->size == vec->capacity)
+    {
+        float* data = realloc(vec->data, 2UL * vec->capacity * sizeof(float));
+        if (data == NULL)
+        {
+            vector_destroy(vec);
+            return false;
+        }
+        vec->capacity *= 2;
+        vec->data      = data;
+    }
+    vec->data[vec->size] = val;
+    vec->size++;
+    return true;
+}
+
+
+void remove_line_break(char* line)
+{
+    size_t n = strcspn(line, "\n");
+    if (n < SIZE_MAX)
+    {
+        line[n] = '\0';
+    }
+}
+void trim(char* line)
+{
+    while (strcspn(line, " ") == 0)
+    {
+        memmove(line, line+1, strlen(line));       
+    }
+    while (strcspn(line, " ") == strlen(line)-1)
+    {
+        line[strlen(line)-1] = '\0';       
+    }
+}
+bool set_key_value(const char* line, char* key, char* value, const char* delim, size_t len)
+{
+    size_t n = strcspn(line, delim);
+    if (n == SIZE_MAX)
+    {
+        return false;
+    }
+
+    memset(key, '\0', len);
+    memset(value, '\0', len);
+
+    strncpy(key, line, n);
+    key[n] = '\0';
+    trim(key);
+    
+    strncpy(value, line+n+1, strlen(line+n+1));
+    // remove_line_break(value);
+    trim(value);
+    return true;
+}
+
+
+// vv this performs a destructive tokenization of "buffer", consider copying the data first...
+bool vector_fill_from_str(Vector* vec, char* buffer, const char* delim) 
+{
+    char* num_str    = strtok(buffer, delim);
+    char* error_char = NULL;
+    while (num_str != NULL)
+    {   
+        float num = strtof(num_str, &error_char);
+        if (error_char != num_str + strlen(num_str)) // error_char points at the end if everything goes as expected..
+        {
+            return false;
+        }
+        
+        vector_push(vec, num);
+        num_str = strtok(NULL, delim);
+    }       
+    return true;
 }
