@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "vector": "c",
+        "initializer_list": "c",
+        "list": "c",
+        "xhash": "c",
+        "xiosbase": "c",
+        "xstring": "c",
+        "xutility": "c",
+        "algorithm": "c",
+        "complex": "c",
+        "optional": "c",
+        "system_error": "c",
+        "type_traits": "c",
+        "xlocmon": "c",
+        "xtr1common": "c",
+        "xlocale": "c"
+    }
+}

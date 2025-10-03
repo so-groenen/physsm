@@ -5,6 +5,10 @@ __pycache__/
 
 # C extensions
 *.so
+*.exe
+
+src/python_simulation_manager/_monte_carlo_ising_for_rust.py
+debug
 
 # Distribution / packaging
 .Python
