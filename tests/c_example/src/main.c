@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
         {
             const char* num_delim = ",";
             char tokens[BUFF_LEN];
-            memcpy(tokens, value, BUFF_LEN);
+            strncpy(tokens, value, BUFF_LEN);
             vector_fill_from_str(&vec, tokens, num_delim);
         }
     }
@@ -111,9 +111,9 @@ bool vector_allocate(Vector* vec, size_t capacity)
     }
     
     *vec = (Vector){
-        .data = data,
-        .size = 0,
-        .capacity  = capacity,
+        .data     = data,
+        .size     = 0,
+        .capacity = capacity,
     };
     return true;
 }
@@ -155,20 +155,26 @@ void remove_line_break(char* line)
 void trim_left(char* line)
 {
     size_t start = 0;
-    while (strcspn(start + line, " ") == 0)
+    while (strchr(line + start, ' ') == line + start)
     {
         start++;      
     }
-    if (!start)
+    if (start == 0)
         return;
 
-    memmove(line, line+start, strlen(line)-start);
+    if (start == strlen(line) - 1)
+    {
+        line[0] = '\0';
+        return;           
+    }
+    
+    memmove(line, line + start, strlen(line) - start);
     line[strlen(line) - start] = '\0';           
 }
 void trim_right(char* line)
 {
     char* last = NULL;
-    while ((last = strrchr(line, ' ')) != NULL && last == line + strlen(line) - 1)
+    while ((last = strrchr(line, ' ')) == line + strlen(line) - 1)
     {
         *last = '\0';     
     } 
