@@ -219,7 +219,7 @@ class ExperimentHandler(Protocol):
             print("Parameter & output files not set!")
         try:
             self.__write_formated(L, delim, rounding)
-            print(f"-- \"{self.param_paths[L]}\": ", end="")
+            print(f"-- \"{self._log_path(self.param_paths[L])}\": ", end="")          
             return True
         except Exception as e:
             print(f"Error occured: {e}, {e.args}")
