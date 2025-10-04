@@ -6,7 +6,7 @@ class ExperimentOutput(Protocol):
     def __init__(self, out_path: Path):
         self.file: Path = out_path
 
-    def parse_output(self, line_number: int, lines: str):
+    def parse_output(self, line_number: int, line: str):
         raise NotImplementedError()
 
     def has_file(self) -> bool:
@@ -28,6 +28,6 @@ class ExperimentOutput(Protocol):
             raise ValueError("Error: outputfile not found")
         
         with self.file.open("r") as file:
-            for (n, lines) in enumerate(file):
-                self.parse_output(n, lines)
+            for (n, line) in enumerate(file):
+                self.parse_output(n, line)
         self.all_lists_to_array()

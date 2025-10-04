@@ -1,13 +1,18 @@
 import subprocess
 from pathlib import Path
 
+DEFAULT_BUILD_DIR = "build"
+
 class PyMake:
-    def __init__(self, project_dir: Path, project_name: str):
-        self.project_dir         = project_dir
+    def __init__(self, project_name: str, compiler: str):
+        self.project_dir: Path   = Path.cwd()
         self.project_name        = project_name
-        self.compiler            = None
+        self.compiler: str       = compiler
         self.sources: list[Path] = []
-        self.build_dir           = self.project_dir.joinpath("build")
+        self.build_dir           = self.project_dir / DEFAULT_BUILD_DIR
+    
+    def set_project_dir(self, proj_dir: Path):
+        self.project_dir = proj_dir
     
     def set_compiler(self, compiler):
         self.compiler = compiler
@@ -17,10 +22,10 @@ class PyMake:
         if not self.build_dir.exists():
             self.build_dir.mkdir(parents=True)
     
-    def append_source(self, src: Path):
+    def add_executable(self, src: Path):
         self.sources.append(src)
     
-    def compile(self):
+    def make(self):
         if self.compiler is None:
             raise ValueError("Missing compiler")
         
@@ -31,18 +36,16 @@ class PyMake:
             for lines in stream.stdout:
                 print("", lines, end='')
         if out_path.exists() or out_path.with_suffix(".exe").exists():
-            print("Compilation succesfull")
+            print("Compilation successful")
             
 if __name__ == "__main__":
 
-    project_name = "c_example"
     project_dir  = Path.cwd()
-    build_dir    = project_dir.joinpath("build")
-    src_file     = project_dir.joinpath("src").joinpath("main.c")
+    build_dir    = project_dir / "build"
+    main         = project_dir / "src"   / "main.c"
 
-    project = PyMake(project_dir, project_name)
-    project.append_source(src_file)
+    project = PyMake(project_name="c_example", compiler="clang")
+    project.add_executable(main)
     project.set_build_dir(build_dir)
-    project.set_compiler("clang")
-    project.compile()   
+    project.make()   
  

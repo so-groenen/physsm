@@ -91,8 +91,8 @@ int main(int argc, char* argv[])
     
     FILE* outputfile = fopen(outputfile_name, "w");
     fprintf(outputfile, "Hello from C!\n");
-    fprintf(outputfile, "result1 => %.2f\n", (float)length * 100 + 42);
-    fprintf(outputfile, "result2 => %.2f\n", (float)monte_carlo_trials + 42);
+    fprintf(outputfile, "result1 => %.2f\n", (float)length + 0.42f);
+    fprintf(outputfile, "result2 => %.2f\n", (float)monte_carlo_trials + 0.42f);
 
     fclose(outputfile);
     vector_destroy(&vec);

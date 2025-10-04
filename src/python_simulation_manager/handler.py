@@ -15,7 +15,7 @@ def array_to_str(array: np.ndarray, rounding: int) -> list[str]:
  
 class ExperimentHandler(Protocol):
     
-    def __init__(self, proj_dir: Path, exp_dir_name: str, results_dir_name: str, scale_variables:list=None, verbose_log:bool=False):
+    def __init__(self, proj_dir: Path, exp_dir_name: str, results_dir_name: str, verbose_log:bool = False):
         self.verbose_log: bool                  = verbose_log
         if self.verbose_log:
             print(">> verbose log is On: All paths shown are Absolute]")
@@ -26,7 +26,7 @@ class ExperimentHandler(Protocol):
         self.param_paths: dict[int|float, Path] = dict()
         self.__set_target_dir(results_dir_name, exp_dir_name)
 
-        self.scale_variables: np.ndarray|list          = scale_variables
+        self.scale_variables: np.ndarray|list          = None
         self.scale_variable_names: list[str]           = ["L"]
 
         self.static_params: dict[str, any]             = dict()
