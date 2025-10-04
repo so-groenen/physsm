@@ -77,7 +77,11 @@ int main(int argc, char* argv[])
             const char* num_delim = ",";
             char tokens[BUFF_LEN];
             strncpy(tokens, value, BUFF_LEN);
-            vector_fill_from_str(&vec, tokens, num_delim);
+            if(!vector_fill_from_str(&vec, tokens, num_delim))
+            {
+                fprintf(stderr, "Could not fill vector");
+                return EXIT_FAILURE;
+            }
         }
     }
     fclose(file);
