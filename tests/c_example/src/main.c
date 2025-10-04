@@ -49,6 +49,8 @@ int main(int argc, char* argv[])
     
     FILE* file = fopen(argv[1],"r");
     char line[BUFF_LEN];
+
+    char test[] = "     hahaha      ";
     while (fgets(line, BUFF_LEN, file))
     {
         remove_line_break(line);
@@ -149,16 +151,32 @@ void remove_line_break(char* line)
         line[n] = '\0';
     }
 }
+
+void trim_left(char* line)
+{
+    size_t start = 0;
+    while (strcspn(start + line, " ") == 0)
+    {
+        start++;      
+    }
+    if (!start)
+        return;
+
+    memmove(line, line+start, strlen(line)-start);
+    line[strlen(line) - start] = '\0';           
+}
+void trim_right(char* line)
+{
+    char* last = NULL;
+    while ((last = strrchr(line, ' ')) != NULL && last == line + strlen(line) - 1)
+    {
+        *last = '\0';     
+    } 
+}
 void trim(char* line)
 {
-    while (strcspn(line, " ") == 0)
-    {
-        memmove(line, line+1, strlen(line));       
-    }
-    while (strcspn(line, " ") == strlen(line)-1)
-    {
-        line[strlen(line)-1] = '\0';       
-    }
+    trim_left(line);
+    trim_right(line);
 }
 bool set_key_value(const char* line, char* key, char* value, const char* delim, size_t len)
 {
@@ -176,7 +194,6 @@ bool set_key_value(const char* line, char* key, char* value, const char* delim, 
     trim(key);
     
     strncpy(value, line+n+1, strlen(line+n+1));
-    // remove_line_break(value);
     trim(value);
     return true;
 }

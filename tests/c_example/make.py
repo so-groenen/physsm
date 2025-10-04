@@ -31,13 +31,18 @@ class PyMake:
         
         src      = " ".join([str(s) for s in self.sources])
         out_path = self.build_dir.joinpath(self.project_name)
-        
+        errors   = []
         with subprocess.Popen(f"{self.compiler} {src} -o {out_path}", stdout=subprocess.PIPE, bufsize=1, text=True, stderr=subprocess.STDOUT, cwd=self.project_dir) as stream:
             for lines in stream.stdout:
                 print("", lines, end='')
-        if out_path.exists() or out_path.with_suffix(".exe").exists():
+                errors.append(lines)
+        if len(errors):
+            print("Compilation unsuccessful")
+        elif out_path.exists() or out_path.with_suffix(".exe").exists() :
             print("Compilation successful")
-            
+        else:
+            print("Error no output")
+
 if __name__ == "__main__":
 
     project_dir  = Path.cwd()
