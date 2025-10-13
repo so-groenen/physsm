@@ -24,8 +24,9 @@ class CargoRunner(IRunner):
 
         
         with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, text=True, stderr=subprocess.STDOUT, cwd=cwd, env=my_env) as stream:
-            for lines in stream.stdout:
-                print("Rust: ", lines, end='')
+            if stream.stdout is not None:
+                for lines in stream.stdout:
+                    print("Rust: ", lines, end='')
 
 class BinaryRunner(IRunner):
     def __init__(self, binary_path: Path):
@@ -40,8 +41,9 @@ class BinaryRunner(IRunner):
             print(f"Command: Executing \"{self.binary.name}\" with \"{args.name}\"")   
 
         with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, text=True, stderr=subprocess.STDOUT, cwd=cwd, env=my_env) as stream:
-            for lines in stream.stdout:
-                print("C/C++: ", lines, end='')
+            if stream.stdout is not None:
+                for lines in stream.stdout:
+                    print("C/C++: ", lines, end='')
         print("")
         
 if __name__ == "__main__":

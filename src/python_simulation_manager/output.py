@@ -1,11 +1,13 @@
-from typing import Protocol 
+from __future__ import annotations
+
 import numpy as np
 from pathlib import Path
 
-class ExperimentOutput(Protocol):
-    def __init__(self, out_path: Path):
+class ExperimentOutput:
+    
+    def __init__(self, out_path):
         self.file: Path = out_path
-
+    
     def parse_output(self, line_number: int, line: str):
         raise NotImplementedError()
 
@@ -31,3 +33,4 @@ class ExperimentOutput(Protocol):
             for (n, line) in enumerate(file):
                 self.parse_output(n, line)
         self.all_lists_to_array()
+ 
