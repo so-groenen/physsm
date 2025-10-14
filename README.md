@@ -28,14 +28,14 @@ from physsm.experiment_output import ExperimentOutput
 class MyOutput(ExperimentOutput):
     def __init__(self, out_path):
         super().__init__(out_path)
-        self.energy  = []
-        self.mag     = []
+        self.energy        = []
+        self.magnetization = []
 
     @override
     def parse_output(self, line_number, line):
         e, m = line.split(",")
         self.energy.append(float(e))
-        self.mag.append(float(m))
+        self.magnetization.append(float(m))
 ```
 The manager distinguishes between:
 * *scale_variable*: the variable which varies for different run of an experiment (for ex: *system size* $L$ in a Monte-Carlo experiment)
@@ -84,19 +84,29 @@ measure_steps: 1000000
 outputfile: path/to/project_dir/results/overview/out_Lx=2.txt
 ```
 Here the default "rounding=3" is used to round np.ndarray to string of numbers.
-We can then execute the `main.exe` executable by providing it the path of the parameter files as arg-variables directly:
+We can then execute the `main.exe` executable:
 
 ```Python
 for L in experiment.get_scale_variables():
     experiment.run(L)
 ```
-which will run `main.exe path/to/parameter_Lx=2.txt` etc under the hood. The result of the calculation will then have the form `results/overview/out=8.txt` and be saved in the same folder.
-The results can then be gathered readily using
+Here the parameter files are passed as arg-variables, and the `run method` simply executes `path/to/main.exe path/to/parameter_Lx=2.txt` in the project directory. The results of the calculation will then have the form `results/overview/out=8.txt` and be saved in the same folder.
+They can be loaded readily, in form of dictionnary "MyOutput" type using
 
 ```Python
 results = experiment.get_results()
 ```
-for plotting & further analysis.  
+for plotting & further analysis or plotting. For example:
+```Python
+import matplotlib.pyplot as plt
+
+for (Lx, result) in results.items():
+    plt.plot(temperatures, result.energy)
+    plt.plot(temperatures, result.magnetization)
+
+```
+See the [provided example](examples/sim_managers/c_manager.ipynb) or a concrete case of the [2D Ising model](https://github.com/so-groenen/2d_ising_in_rust/blob/main/calculation_manager/ising_run_and_plot.ipynb).
+
 ## Rust example
 For the Rust example we simply use the `RustExperimentBuilder` and `set_cargo_toml_path` method:
 ```Python
@@ -174,7 +184,6 @@ builder.set_parameter_file_data(filename="parameter", extension="txt")
 By default, the terminal displays relative paths, we can display absolute paths by using the "verbose" option:
 ```
 builder = CppExperimentBuilder(project_dir, results_dir="results", exp_name="overview", verbose_log=True)
-
 ```
 
 ## Environnement variables
