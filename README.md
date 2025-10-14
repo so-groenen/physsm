@@ -16,8 +16,9 @@ The package uses pathlib for crossplatform path handling & uv for packaging.<br>
 ## Example for a C++ Monte-Carlo experiment
 
 Assume we have a C++ Monte-Carlo progrmam `main.exe` which:
-* reads a file containing a range of *temperatures*, system-size **length** $Lx$, that we wish to execute multiple times for $Lx = 2, 4, 8$, each time with different **Monte-Carlo steps**.
-* For each length $Lx$, the programm will computes the **energy** and **magnetization** and write it in a file.
+* reads a file containing a range of *temperatures*, system-size length **Lx**, that
+* For each length **Lx**, compute the **energy** and **magnetization** and write it in a file.
+* is **executed 3 times**, once for lengths **Lx** $=2,4,8$, each time with different **Monte-Carlo steps**.
 
 <br> This can be achieved by first defining the outline of the outputfile so that the manager knows how to grab the results. This is done by inheriting from `ExperimentOutput` and implementing the `parse_output` method:
 
@@ -37,9 +38,9 @@ class MyOutput(ExperimentOutput):
         self.mag.append(float(m))
 ```
 The manager distinguishes between:
-* *scale_variable*: variable which changes for different run of an experiment (for ex: *system size* $L$ in a Monte-Carlo experiment)
-* *static_parameters*: the parameters kept constant for exach run (for ex: *temperatures*, external magnetic field...)
-* *scaling_parameters*: parameters which depend on the scale variable and differ from one programm run to another (for example: number of monte-carlo steps)
+* *scale_variable*: the variable which varies for different run of an experiment (for ex: *system size* $L$ in a Monte-Carlo experiment)
+* *static_parameters*: the parameters kept constant for exach run (for ex: *temperatures*, *external magnetic field*...)
+* *scaling_parameters*: parameters which depend on the scale variable and differ from one programm run to another (for ex: number of *monte-carlo steps*)
 We can define/add the needed parameters using the `CppExperimentBuilder`:
 
 ```python
@@ -86,7 +87,7 @@ Here the default "rounding=3" is used to round np.ndarray to string of numbers.
 We can then execute the `main.exe` executable by providing it the path of the parameter files as arg-variables directly:
 
 ```Python
-for L in experiment.set_scale_variables():
+for L in experiment.get_scale_variables():
     experiment.run(L)
 ```
 which will run `main.exe path/to/parameter_Lx=2.txt` etc under the hood. The result of the calculation will then have the form `results/overview/out=8.txt` and be saved in the same folder.
@@ -145,11 +146,14 @@ cd python_simulation_manager
 And initlize the python virtual environnement using `uv init`.
 ### C/C++
 Change directory `cd examples/c_example`.<br>
-You can compile the the small C programm in `src/main.c` using the small python script `uv run make.py`, which will compile it using clang & put the binary into `examples/c_example/build/c_example.exe`.<br>
+You can compile the the small C programm in `src/main.c` using the small python script `uv run make.py`, which will compile it using clang & put the binary into `build/c_example.exe`.<br>
 
-Run then all the scripts in look [examples/sim_managers/c_manager.ipynb](examples/sim_managers/c_manager.ipynb).<br>
+Run then all the scripts in [examples/sim_managers/c_manager.ipynb](examples/sim_managers/c_manager.ipynb).<br>
+In these scripts we encapsulate the building steps in a "Factory" class, so as to avoid having to redo the steps everytime.
 ### Rust
-Run then all the scripts in look [examples/sim_managers/rust_manager.ipynb](examples/sim_managers/rust_manager.ipynb).<br>
+From the `python_simulation_manager` dir, change directory `cd examples/rust_example`.<br>
+
+Run then all the scripts in [examples/sim_managers/rust_manager.ipynb](examples/sim_managers/rust_manager.ipynb).<br>
 
 ## Customization
 The package uses some default options:
