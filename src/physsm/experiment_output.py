@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from abc import abstractmethod
 import numpy as np
 from pathlib import Path
 
@@ -7,9 +7,10 @@ class ExperimentOutput:
     def __init__(self, out_path):
         self.file: Path = out_path
     
+    @abstractmethod
     def parse_output(self, line_number: int, line: str):
-        raise NotImplementedError()
-
+        ...
+    
     def has_file(self) -> bool:
         return self.file.exists()
         

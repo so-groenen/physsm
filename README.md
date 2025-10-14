@@ -1,4 +1,4 @@
-# Crossplatform Physics Simulation Manager written in Python. 
+# Physsm: A crossplatform Physics Simulation Manager written in Python. 
 ### WORK IN PROGRESS
 
 The goal of this small package is to handle simulations written in **low-level languages** (C, C++, Fortran, Rust) from a **Python notebook interface**:
@@ -23,7 +23,7 @@ Assume we have a C++ Monte-Carlo progrmam `main.exe` which:
 <br> This can be achieved by first defining the outline of the outputfile so that the manager knows how to grab the results. This is done by inheriting from `ExperimentOutput` and implementing the `parse_output` method:
 
 ```Python
-from python_simulation_manager.output import ExperimentOutput
+from physsm.experiment_output import ExperimentOutput
 
 class MyOutput(ExperimentOutput):
     def __init__(self, out_path):
@@ -45,7 +45,7 @@ We can define/add the needed parameters using the `CppExperimentBuilder`:
 
 ```python
 from pathlib import Path
-from python_simulation_manager.cpp_handler import CppExperimentBuilder
+from physsm.cpp_builder import CppExperimentBuilder
 
 thermalization_steps = {2: 1_000_000, 4: 500_000,  8: 100_000}
 measure_steps        = {2: 1_000_000, 4: 500_000,  8: 100_000}
@@ -100,18 +100,20 @@ for plotting & further analysis.
 ## Rust example
 For the Rust example we simply use the `RustExperimentBuilder` and `set_cargo_toml_path` method:
 ```Python
+from physsm.rust_builder import RustExperiment, RustExperimentBuilder
+
 thermalization_steps = {2: 1_000_000, 4: 500_000,  8: 100_000}
 measure_steps        = {2: 1_000_000, 4: 500_000,  8: 100_000}
 temperatures         = np.arange(0, 5, 0.5)
-project_dir          = Path().cwd()  #current working directory
-executable           = project_dir / "build" / "main.exe"
+project_dir          = Path().cwd()   
+cargo_path           = project_dir / "rust_project" / "Cargo.toml"
 builder              = RustExperimentBuilder(project_dir, results_dir="results", exp_name="overview")
 
 builder.set_scale_variable_names(["Lx"])
 builder.add_static_parameter("temperatures", temperatures)
 builder.add_scaling_parameter("thermalization_steps", thermalization_steps)
 builder.add_scaling_parameter("measure_steps", measure_steps)
-builder.set_cargo_toml_path("path/to/caro")
+builder.set_cargo_toml_path(cargo_path)
 experiment = builder.build()
 experiment.write_parameter_files()
 ```
@@ -160,5 +162,29 @@ The package uses some default options:
 ```
 experiment.write_parameter_files(delim =':', rounding=3)
 ```
-where rounding is used to map np.ndarray to strings.
- 
+where rounding is used to map *np.ndarray* to strings.
+Similarly, we can set the outputfile key, file_name and extension:
+```
+builder.set_output_file_data(key="outputfile", filename="out", extension="txt")
+```
+as well as for the parameter file
+```
+builder.set_parameter_file_data(filename="parameter", extension="txt")   
+```
+By default, the terminal displays relative paths, we can display absolute paths by using the "verbose" option:
+```
+builder = CppExperimentBuilder(project_dir, results_dir="results", exp_name="overview", verbose_log=True)
+
+```
+
+## Environnement variables
+When running a simulation, one often needs to use environnement variables (for ex: number of threads). This is achieved as follows:
+```
+import os
+env_var = os.environ.copy()
+env_var["OMP_NUM_THREADS "] = "4"
+
+for L in experiment.get_scale_variables():
+    experiment.run(L, verbose_log=True, env_var=env_var)
+```
+Note, we used the "verbose=True", which full path"

@@ -1,4 +1,4 @@
-from .experiment_data import ExperimentData
+from .experiment_data import BaseExperimentData
 from .abstract_experiment import AbstractExperiment
 from .abstract_experiment_builder import AbstractExperimentBuilder
 from .runnner import BinaryRunner
@@ -7,10 +7,11 @@ from typing import override
 
 
 class CppExperiment(AbstractExperiment):
-    def __init__(self, exp_data: ExperimentData):
+    def __init__(self, exp_data: BaseExperimentData):
         self.copy_data(exp_data)
     
-    def run_executable(self, scale: int|float, env_var:dict|None = None, verbose = False):
+    @override
+    def run(self, scale: int | float, env_var: dict | None = None, verbose_log=False) -> None:
         if self.runner is None:
             raise TypeError("run_executable() error: Runner not set [use: set_executable]")
         
@@ -22,20 +23,17 @@ class CppExperiment(AbstractExperiment):
             print(">> run_cargo: cannot find parameter")            
             return
 
-        cwd  = self.proj_dir
+        cwd  = self.paths_data.proj_dir
         args = param_path
-        self.runner.run(cwd, args, verbose, env_var)
-    
-    @override
-    def run(self, scale: int | float, env_var: dict | None = None, verbose=False) -> None:
-        self.run_executable(scale, env_var, verbose)
-        
+        self.runner.run(cwd, args, verbose_log, env_var)        
 
 class CppExperimentBuilder(AbstractExperimentBuilder):
     def __init__(self, proj_dir: Path, results_dir: str, exp_name: str, verbose_log: bool = False):
         super().__init__(proj_dir, results_dir, exp_name, verbose_log)
         
     def set_executable(self, binary_path: Path):
+        if not binary_path.exists():
+            raise FileNotFoundError(f"set_executable(): Cannot find {binary_path}")
         self.experiment.runner = BinaryRunner(binary_path)
         print(f">> Binary path set to \"{self._log_path(binary_path)}\" [Current mode: Binary mode]")
     

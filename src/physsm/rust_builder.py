@@ -1,19 +1,20 @@
-from .experiment_data import ExperimentData
+from .experiment_data import BaseExperimentData
 from .abstract_experiment import AbstractExperiment
 from .abstract_experiment_builder import AbstractExperimentBuilder
-from .output import ExperimentOutput
+from .experiment_output import ExperimentOutput
 from .runnner import CargoRunner
 from pathlib import Path
-from typing import Type, override, TypeVar
+from typing import override, TypeVar
 
 OutType = TypeVar("OutType", bound = ExperimentOutput) 
 
-class RustExperiment(AbstractExperiment[OutType]):
-    def __init__(self, exp_data: ExperimentData):
+class RustExperiment(AbstractExperiment):
+    def __init__(self, exp_data: BaseExperimentData):
         super().__init__()
         self.copy_data(exp_data)
         
-    def run_cargo(self, scale: int|float, env_var:dict|None = None, verbose:bool = False):
+    @override
+    def run(self, scale: int | float, env_var: dict | None = None, verbose_log=False) -> None:
         if self.runner is None:
             raise TypeError("run_cargo() error: Runner not set [use: set_executable]")        
         
@@ -25,19 +26,19 @@ class RustExperiment(AbstractExperiment[OutType]):
             print(">> run_cargo: cannot find parameter")            
             return
               
-        cwd  = self.proj_dir
+        cwd  = self.paths_data.proj_dir
         args = param_path
-        self.runner.run(cwd, args, verbose, env_var)
+        self.runner.run(cwd, args, verbose_log, env_var)
         
-    @override
-    def run(self, scale: int | float, env_var: dict | None = None, verbose=False) -> None:
-        self.run_cargo(scale, env_var, verbose)
-
+        
 class RustExperimentBuilder(AbstractExperimentBuilder[OutType]):
     def __init__(self, proj_dir: Path, results_dir: str, exp_name: str, verbose_log: bool = False):
         super().__init__(proj_dir, results_dir, exp_name, verbose_log)
         
     def set_cargo_toml_path(self, cargo_toml_path: Path):
+        if not cargo_toml_path.exists():
+            raise FileNotFoundError(f"set_cargo_toml_path(): Cannot find {cargo_toml_path}")
+        
         self.experiment.runner = CargoRunner(cargo_toml_path)
         print(f">> Cargo toml path set to \"{self._log_path(cargo_toml_path)}\" [Current mode: Cargo mode]")
 
