@@ -8,16 +8,11 @@ from io import TextIOWrapper
 from .experiment_data import BaseExperimentData, OutType
 from .runnner import*
 
-  
-
 def array_to_str(array: np.ndarray, rounding: int) -> str:
     temps_str = []
     for val in array:
         temps_str.append(str(round(val, rounding)))
     return ", ".join(temps_str)
-
-# Yes, it would be better use composition over inheritance
-# But it makes it easier ...
 
 class AbstractExperiment(ABC, BaseExperimentData, Generic[OutType]):
     def __init__(self):
