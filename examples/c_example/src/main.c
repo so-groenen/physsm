@@ -49,8 +49,6 @@ int main(int argc, char* argv[])
     
     FILE* file = fopen(argv[1],"r");
     char line[BUFF_LEN];
-
-    char test[] = "     hahaha      ";
     while (fgets(line, BUFF_LEN, file))
     {
         remove_line_break(line);

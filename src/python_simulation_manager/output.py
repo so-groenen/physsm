@@ -4,7 +4,6 @@ import numpy as np
 from pathlib import Path
 
 class ExperimentOutput:
-    
     def __init__(self, out_path):
         self.file: Path = out_path
     
@@ -23,7 +22,6 @@ class ExperimentOutput:
     def all_lists_to_array(self):
         for name in vars(self).keys():
             self.__to_nd_array(name)
-
 
     def grab_files(self) -> None:
         if not self.has_file():

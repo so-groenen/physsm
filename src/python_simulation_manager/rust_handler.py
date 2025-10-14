@@ -34,8 +34,8 @@ class RustExperiment(AbstractExperiment[OutType]):
         self.run_cargo(scale, env_var, verbose)
 
 class RustExperimentBuilder(AbstractExperimentBuilder[OutType]):
-    def __init__(self, proj_dir: Path, exp_dir_name: str, results_dir_name: str, verbose_log:  bool = False):
-        super().__init__(proj_dir, exp_dir_name, results_dir_name, verbose_log)
+    def __init__(self, proj_dir: Path, results_dir: str, exp_name: str, verbose_log: bool = False):
+        super().__init__(proj_dir, results_dir, exp_name, verbose_log)
         
     def set_cargo_toml_path(self, cargo_toml_path: Path):
         self.experiment.runner = CargoRunner(cargo_toml_path)

@@ -12,25 +12,21 @@ OutType = TypeVar("OutType", bound = ExperimentOutput)
   
     
 class AbstractExperimentBuilder(Generic[OutType]):
-    
-    def __init__(self, proj_dir: Path, exp_dir_name: str, results_dir_name: str, verbose_log:bool = False):
+    def __init__(self, proj_dir: Path, results_dir: str, exp_name: str, verbose_log:bool = False):
         self.experiment                      = ExperimentData()
         self.experiment.verbose_log          = verbose_log
         self.experiment.proj_dir             = proj_dir
-        self.experiment.target_dir           = self.__get_target_dir(results_dir_name, exp_dir_name)
+        self.experiment.target_dir           = self.__get_target_dir(results_dir, exp_name)
         self.paths_are_set = False
-        # self.experiment.out_type
-        # self.outtp: Type[OutType]
         
     def _log_path(self, path: Path) -> Path:
         if not self.experiment.verbose_log:
             return path.relative_to(self.experiment.proj_dir)
         return path
-        
-    
-    def __get_target_dir(self, results_dir_name: str, exp_dir_name: str):
-        results_dir = self.experiment.proj_dir.joinpath(results_dir_name)
-        target_dir   = results_dir.joinpath(exp_dir_name)
+
+    def __get_target_dir(self, results_dir: str, exp_name: str):
+        _results_dir = self.experiment.proj_dir.joinpath(results_dir)
+        target_dir   = _results_dir.joinpath(exp_name)
         
         if not self.experiment.proj_dir.exists():
             raise NotADirectoryError(f">> Project Directory \"{self._log_path(self.experiment.proj_dir)}\" Not Found.")
@@ -77,7 +73,6 @@ class AbstractExperimentBuilder(Generic[OutType]):
             scale_variables.append(L)
         scale_variables.sort()
         return scale_variables
-    
 
     def __is_valid_scaling_parameter(self, name: str, new_scaling_param: dict) -> bool:
         if len(self.experiment.scaling_params) == 0:
@@ -99,11 +94,8 @@ class AbstractExperimentBuilder(Generic[OutType]):
                 return False
         return True         
  
-    
     def set_output_type(self, out_type: Type[OutType]):
         self.experiment.out_type = out_type       
-        # self.outtp = out_type
-
     
     def add_static_parameter(self, key: str, value):
         print(f">> Succesfully added \"{key}\"")
@@ -134,7 +126,6 @@ class AbstractExperimentBuilder(Generic[OutType]):
     @abstractmethod
     def build(self, load_only = False) -> Any: 
         ...
-     
 
 if __name__ == "__main__":
     pass

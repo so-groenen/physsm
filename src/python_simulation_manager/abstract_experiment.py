@@ -16,10 +16,8 @@ def array_to_str(array: np.ndarray, rounding: int) -> str:
     return ", ".join(temps_str)
  
 class AbstractExperiment(ExperimentData, Generic[OutType]):
-    
     def __init__(self):
         super().__init__()
-        # self.out = out
 
     def _log_path(self, path: Path) -> Path:
         if not self.verbose_log:
@@ -34,10 +32,8 @@ class AbstractExperiment(ExperimentData, Generic[OutType]):
     def get_static_parameter(self, key) -> Any:
         return self.static_params[key]
  
-               
     def get_scaling_parameter(self, key) -> dict:
         return self.scaling_params[key]
-    
             
     def __write_formated(self, L, delim: str=':', rounding=3):          
         with self.param_paths[L].open("w") as file:
@@ -62,7 +58,6 @@ class AbstractExperiment(ExperimentData, Generic[OutType]):
                 param = array_to_str(param, rounding)
             file.write(f"{key}{delim} {param}\n")
  
-    
     def write_parameter_file(self, L: int, delim: str=':', rounding=3) -> bool:
         try:
             self.__write_formated(L, delim, rounding)
@@ -84,7 +79,6 @@ class AbstractExperiment(ExperimentData, Generic[OutType]):
             except Exception as e:
                 print(f"write_parameter_files Error: {e}, {e.args}")
  
-    
     def are_parameter_files_available(self) -> bool:        
         has_all_files = True
         missing_files: list[Path] = []
@@ -145,7 +139,6 @@ class AbstractExperiment(ExperimentData, Generic[OutType]):
             
         return some_availabe
 
-
     def get_results(self) -> dict[int, OutType]: 
         if self._scale_variables is None:
             raise ValueError("get_results() error: scale_variables not set!")
@@ -166,8 +159,6 @@ class AbstractExperiment(ExperimentData, Generic[OutType]):
  
         for L in self._scale_variables:
             if self.has_output(L):
-                
-                # results[L] = self.out(self.get_output(L))
                 results[L] = self.out_type(self.get_output(L))
                 results[L].grab_files()
         return results

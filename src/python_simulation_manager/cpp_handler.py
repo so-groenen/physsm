@@ -32,8 +32,8 @@ class CppExperiment(AbstractExperiment):
         
 
 class CppExperimentBuilder(AbstractExperimentBuilder):
-    def __init__(self, proj_dir: Path, exp_dir_name: str, results_dir_name: str, verbose_log: bool = False):
-        super().__init__(proj_dir, exp_dir_name, results_dir_name, verbose_log)
+    def __init__(self, proj_dir: Path, results_dir: str, exp_name: str, verbose_log: bool = False):
+        super().__init__(proj_dir, results_dir, exp_name, verbose_log)
         
     def set_executable(self, binary_path: Path):
         self.experiment.runner = BinaryRunner(binary_path)

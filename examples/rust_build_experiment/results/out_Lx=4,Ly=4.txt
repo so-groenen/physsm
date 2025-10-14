@@ -1,0 +1,2 @@
+Hello from Rust! Layout: result1, result2
+4.42, 10000.42

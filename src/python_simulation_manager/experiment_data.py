@@ -37,7 +37,6 @@ class ExperimentData(Generic[OutType]):
         self.runner               = exp_data.runner
 
     
-
 if __name__ == "__main__":
     pass
  
