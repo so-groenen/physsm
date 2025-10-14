@@ -33,9 +33,10 @@ class PyMake:
         out_path = self.build_dir.joinpath(self.project_name)
         errors   = []
         with subprocess.Popen(f"{self.compiler} {src} -o {out_path}", stdout=subprocess.PIPE, bufsize=1, text=True, stderr=subprocess.STDOUT, cwd=self.project_dir) as stream:
-            for lines in stream.stdout:
-                print("", lines, end='')
-                errors.append(lines)
+            if  stream.stdout is not None: 
+                for lines in  stream.stdout:
+                    print("", lines, end='')
+                    errors.append(lines)
         if len(errors):
             print("Compilation unsuccessful")
         elif out_path.exists() or out_path.with_suffix(".exe").exists() :
