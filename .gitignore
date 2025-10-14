@@ -5,6 +5,12 @@ __pycache__/
 
 # C extensions
 *.so
+*.exe
+
+src/python_simulation_manager/_monte_carlo_ising_for_rust.py
+src/python_simulation_manager/handler_build_pattern.py
+
+debug
 
 # Distribution / packaging
 .Python

@@ -1,0 +1,5 @@
+Lx: 2
+Ly: 2
+temperature: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+monte_carlo_trials: 1000
+outputfile: c:\Users\solof\Desktop\programming\python\GITHUB\python_sim_manager_fork\examples\rust_build_experiment\results\out_Lx=2,Ly=2.txt

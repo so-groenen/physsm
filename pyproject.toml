@@ -1,5 +1,5 @@
 [project]
-name = "python_simulation_manager"
+name = "physsm"
 version = "0.1.0"
 description = "Small Monte Carlo Simulation Manager Interface written in Python."
 readme = "README.md"
@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "numpy>=2.3.3",
+    "pathlib>=1.0.1",
 ]
 
 [build-system]
