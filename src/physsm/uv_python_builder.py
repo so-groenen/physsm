@@ -28,7 +28,7 @@ class UvRunner(IRunner):
         print("")
 
 
-class PythonuvExperiment(AbstractExperiment):
+class PythonExperiment(AbstractExperiment):
     def __init__(self, exp_data: BaseExperimentData):
         super().__init__(exp_data)
 
@@ -49,7 +49,7 @@ class PythonuvExperiment(AbstractExperiment):
         args = param_path
         self.runner.run(cwd, args, verbose_log, env_var)        
 
-class PythonuvExperimentBuilder(AbstractExperimentBuilder):
+class PythonExperimentBuilder(AbstractExperimentBuilder):
     def __init__(self, proj_dir: Path, results_dir: str, exp_name: str, verbose_log: bool = False):
         super().__init__(proj_dir, results_dir, exp_name, PathLogger(proj_dir, verbose_log))
         self.runner: UvRunner|None = None
@@ -61,13 +61,13 @@ class PythonuvExperimentBuilder(AbstractExperimentBuilder):
         print(f">> Python file path set to \"{self.log_path(binary_path)}\" [Current mode: uv Python mode]")
     
     @override
-    def build(self, load_only = False) -> PythonuvExperiment:
+    def build(self, load_only = False) -> PythonExperiment:
         experiment        = self._make_base_experiment()
         experiment.runner = self.runner
         if experiment.runner is None and not load_only:
             raise TypeError("Python UvRunner not set!")
         
-        return PythonuvExperiment(experiment)
+        return PythonExperiment(experiment)
     
 if __name__ == "__main__":
     pass
