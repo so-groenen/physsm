@@ -8,10 +8,9 @@ We define the outline of the output file, write the parameters in Python, set th
 
 The package uses pathlib for crossplatform path handling & uv for packaging.<br>
 ## Tested for:
-* [C++: DMRG simulation of 1D Heisenberg chain](https://github.com/so-groenen/DMRG_Antiferro_S-1_Heisenberg_chain)
+* [C++/PyTorch: DMRG simulation of 1D Heisenberg chain](https://github.com/so-groenen/DMRG_Heisenberg_chain)
 * [Rust: 2D Ising Metropolis](https://github.com/so-groenen/2d_ising_in_rust)
 * [Rust: 2D Ising Swendsen-Wang cluster algorithm](https://github.com/so-groenen/swendsen_wang_ising_rust)
-* [C++/PyTorch: DMRG simulation of 1D Heisenberg chain](https://github.com/so-groenen/DMRG_Heisenberg_chain))
 
 ## Example for a C++ Monte-Carlo experiment
 
