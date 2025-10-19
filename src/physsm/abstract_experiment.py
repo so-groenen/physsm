@@ -7,6 +7,7 @@ from io import TextIOWrapper
 
 from .experiment_data import BaseExperimentData, OutType
 from .runnner import*
+from .path_logger import IPathLogger
 
 def array_to_str(array: np.ndarray, rounding: int) -> str:
     temps_str = []
@@ -15,14 +16,10 @@ def array_to_str(array: np.ndarray, rounding: int) -> str:
     return ", ".join(temps_str)
 
 class AbstractExperiment(ABC, BaseExperimentData, Generic[OutType]):
-    def __init__(self):
-        super().__init__()
-
-    def _log_path(self, path: Path) -> Path:
-        if not self.verbose_log:
-            return path.relative_to(self.paths_data.proj_dir)
-        return path
-        
+    def __init__(self, exp_data: BaseExperimentData):
+        super().__init__(exp_data.paths_data)
+        self.copy_data(exp_data)
+            
     def get_scale_variables(self) -> Any:
         if self.parameters.scale_variables is None:
             raise ValueError("scale_variables() Error: No scale variables")
@@ -37,7 +34,7 @@ class AbstractExperiment(ABC, BaseExperimentData, Generic[OutType]):
     def __write_formated(self, L, delim: str=':', rounding=3):     
         
         out_key = self.out_key      
-        with self.paths_data.param_paths[L].open("w") as file:
+        with self.paths_data.param_paths[L].open("w") as file: # type: ignore
             for name in self.parameters.scale_variable_names:
                 file.write(f"{name}{delim} {L}\n")
             self.__write_static(file, delim, rounding)
@@ -62,7 +59,7 @@ class AbstractExperiment(ABC, BaseExperimentData, Generic[OutType]):
     def write_parameter_file(self, L: int, delim: str=':', rounding=3) -> bool:
         try:
             self.__write_formated(L, delim, rounding)
-            print(f"-- \"{self._log_path(self.paths_data.param_paths[L])}\": ", end="")          
+            print(f"-- \"{self.log_path(self.paths_data.param_paths[L])}\": ", end="")          
             return True
         except Exception as e:
             print(f"write_parameter_file error: {e}, {e.args}")
@@ -91,7 +88,7 @@ class AbstractExperiment(ABC, BaseExperimentData, Generic[OutType]):
         for L in self.parameters.scale_variables:
             param_path = self.paths_data.param_paths[L]
             if param_path.exists():
-                print(f"-- Found parameter file: {self._log_path(param_path)}")
+                print(f"-- Found parameter file: {self.log_path(param_path)}")
             else:
                 missing_files.append(param_path)
                 has_all_files = False
@@ -101,7 +98,7 @@ class AbstractExperiment(ABC, BaseExperimentData, Generic[OutType]):
         else:
             print("* Not all parameter files created yet:")    
             for files in missing_files:
-                print(f"-- not written yet: {self._log_path(files)}")
+                print(f"-- not written yet: {self.log_path(files)}")
         return has_all_files
      
     def get_parameter_path(self, L):
@@ -125,7 +122,7 @@ class AbstractExperiment(ABC, BaseExperimentData, Generic[OutType]):
         for L in self.parameters.scale_variables:
             file = self.paths_data.out_paths[L]  
             if self.has_output(L):
-                print(f"-- Found output: {self._log_path(file)}")
+                print(f"-- Found output: {self.log_path(file)}")
                 some_availabe = True
             else:
                 missing_files.append(file)
@@ -134,7 +131,7 @@ class AbstractExperiment(ABC, BaseExperimentData, Generic[OutType]):
         if not all_available:
             print(f"* missing output:")
             for file in missing_files:
-                print(f"-- {self._log_path(file)}")
+                print(f"-- {self.log_path(file)}")
         if not some_availabe:
             print("* No output files created yet.")
             
@@ -152,8 +149,8 @@ class AbstractExperiment(ABC, BaseExperimentData, Generic[OutType]):
         
         for L in self.parameters.scale_variables:
             if self.has_output(L):
-                if self.verbose_log:
-                    print(f"Found output: \"{self._log_path(self.get_output(L))}")
+                if self.is_verbose_log():
+                    print(f"Found output: \"{self.log_path(self.get_output(L))}")
                 has_results = True
         if not has_results:
             return dict()

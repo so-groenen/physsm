@@ -2,17 +2,41 @@ from .experiment_data import BaseExperimentData
 from .abstract_experiment import AbstractExperiment
 from .abstract_experiment_builder import AbstractExperimentBuilder
 from .experiment_output import ExperimentOutput
-from .runnner import CargoRunner
+from .runnner import IRunner
+from .path_logger import PathLogger
 from pathlib import Path
 from typing import override, TypeVar
+import subprocess
 
 OutType = TypeVar("OutType", bound = ExperimentOutput) 
 
+
+
+class CargoRunner(IRunner):
+    def __init__(self, cargo_toml_path: Path):
+        self.cargo_toml_path = cargo_toml_path
+
+        
+    @override
+    def run(self, cwd: Path, args: Path,  verbose_log: bool = False, my_env: None | dict = None):
+        cargo_toml_path = self.cargo_toml_path 
+        command = f"cargo run --manifest-path {cargo_toml_path} --release -- {args}"
+
+        if verbose_log:
+            print(f"Command: \"{command}\"")   
+        else:
+            print(f"Running cargo --release with from rust dir \"{cargo_toml_path.parent.relative_to(cwd)}\" and args=\"{args.name}\"")   
+
+        
+        with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, text=True, stderr=subprocess.STDOUT, cwd=cwd, env=my_env) as stream:
+            if stream.stdout is not None:
+                for lines in stream.stdout:
+                    print("Rust: ", lines, end='')
+
 class RustExperiment(AbstractExperiment):
     def __init__(self, exp_data: BaseExperimentData):
-        super().__init__()
-        self.copy_data(exp_data)
-        
+        super().__init__(exp_data)
+
     @override
     def run(self, scale: int | float, env_var: dict | None = None, verbose_log=False) -> None:
         if self.runner is None:
@@ -33,21 +57,22 @@ class RustExperiment(AbstractExperiment):
         
 class RustExperimentBuilder(AbstractExperimentBuilder[OutType]):
     def __init__(self, proj_dir: Path, results_dir: str, exp_name: str, verbose_log: bool = False):
-        super().__init__(proj_dir, results_dir, exp_name, verbose_log)
-        
+        super().__init__(proj_dir, results_dir, exp_name, PathLogger(proj_dir, verbose_log))
+        self.runner: CargoRunner|None = None
+
     def set_cargo_toml_path(self, cargo_toml_path: Path):
         if not cargo_toml_path.exists():
             raise FileNotFoundError(f"set_cargo_toml_path(): Cannot find {cargo_toml_path}")
-        
-        self.experiment.runner = CargoRunner(cargo_toml_path)
-        print(f">> Cargo toml path set to \"{self._log_path(cargo_toml_path)}\" [Current mode: Cargo mode]")
+        self.runner = CargoRunner(cargo_toml_path)
+        print(f">> Cargo toml path set to \"{self.log_path(cargo_toml_path)}\" [Current mode: Cargo mode]")
 
     @override
     def build(self, load_only = False) -> RustExperiment:
-        self._set_files()
-        if self.experiment.runner is None and not load_only:
+        experiment        = self._make_base_experiment()
+        experiment.runner = self.runner
+        if experiment.runner is None and not load_only:
             raise TypeError("Cargo toml not set!")
-        return RustExperiment(self.experiment)
+        return RustExperiment(experiment)
 
 if __name__ == "__main__":
     pass

@@ -4,56 +4,53 @@ from typing import Any, TypeVar
 from .experiment_output import ExperimentOutput
 from .runnner import*
 from pathlib import Path
-
-def log_path(self, path: Path, verbose = False) -> Path:
-    if not self.verbose:
-        return path.relative_to(self.paths_data.proj_dir)
-    return path
+from .path_logger import PathLogger, IPathLogger
 
 class PathData:
-    def __init__(self) -> None:
+    def __init__(self, logger: IPathLogger) -> None:
         self.proj_dir: Path                        = Path()
         self.out_paths:   dict[int|float, Path]    = dict()
         self.param_paths: dict[int|float, Path]    = dict()
         self.target_dir: Path                      = Path()
-    
-    def log_path(self, path: Path, verbose) -> Path:
-        if not verbose:
-            return path.relative_to(self.proj_dir)
-        return path
-    
-    def set_param_path(self, key, path_name: str, verbose: bool):       
-        self.param_paths[key] =  self.target_dir.joinpath(path_name)
-        print(f"-- setting paramfile \"{self.log_path(self.param_paths[key], verbose)}\"")
+        self.path_logger: IPathLogger              = logger
         
-    def set_out_path(self, key, out_path_name: str, verbose: bool):       
-        self.out_paths[key] = self.target_dir.joinpath(out_path_name)
-        print(f"-- setting outfile \"{self.log_path(self.out_paths[key], verbose)}\"")
+    def log_path(self, path: Path) -> Path:
+        return self.path_logger.log_path(path)
 
+    def set_param_path(self, key, path_name: str):       
+        self.param_paths[key] =  self.target_dir.joinpath(path_name)
+        print(f"-- setting paramfile \"{self.log_path(self.param_paths[key])}\"")
+        
+    def set_out_path(self, key, out_path_name: str):       
+        self.out_paths[key] = self.target_dir.joinpath(out_path_name)
+        print(f"-- setting outfile \"{self.log_path(self.out_paths[key])}\"")
+
+    def set_logger(self, logger: IPathLogger):
+        self.path_logger = logger
+    
     def set_proj_dir(self, proj_dir):
         self.proj_dir = proj_dir
         
-    def set_target_dir(self, results_dir: str, exp_name: str, verbose = False):
+    def set_target_dir(self, results_dir: str, exp_name: str):
            
         _results_dir = self.proj_dir.joinpath(results_dir)
         target_dir   = _results_dir.joinpath(exp_name)
         if not self.proj_dir.exists():
-            raise NotADirectoryError(f">> Project Directory \"{self.log_path(self.proj_dir, verbose)}\" Not Found.")
+            raise NotADirectoryError(f">> Project Directory \"{self.log_path(self.proj_dir)}\" Not Found.")
         else:
-            if not verbose:
+            if not self.path_logger.is_verbose():
                 print(f">> Project Directory \"{self.proj_dir.name}\" Found.")
             else:
                 print(f">> Project Directory \"{self.proj_dir}\" Found.")
                 
         if target_dir.exists():
-            print(f">> Directory \"{self.log_path(target_dir, verbose)}\" Found.")
+            print(f">> Directory \"{self.log_path(target_dir)}\" Found.")
         else:
             target_dir.mkdir(parents=True)
-            print(f">> Directory \"{self.log_path(target_dir, verbose)}\" created.")
+            print(f">> Directory \"{self.log_path(target_dir)}\" created.")
 
         self.target_dir = target_dir
       
-
 
 class Parameters:
     def __init__(self) -> None:
@@ -121,23 +118,24 @@ class Parameters:
 OutType =  TypeVar("OutType", bound= ExperimentOutput,) 
 
 class BaseExperimentData[OutType]:
-    def __init__(self):
-        self.verbose_log: bool             = False
-        self.paths_data                    = PathData()
+    def __init__(self, paths_data: PathData):
+        self.paths_data: PathData          = paths_data
         self.parameters                    = Parameters()        
         self.out_type: type[OutType]|None  = None                
         self.runner: IRunner|None          = None
         self.out_key                       = "outputfile"
 
     def copy_data(self, exp_data: BaseExperimentData):
-        self.verbose_log   = exp_data.verbose_log
         self.paths_data    = exp_data.paths_data
-        self.paths_data    = self.paths_data 
         self.parameters    = exp_data.parameters 
         self.out_type      = exp_data.out_type
         self.runner        = exp_data.runner
         self.out_key       = exp_data.out_key
 
+    def log_path(self, path: Path):
+        return self.paths_data.log_path(path)
+    def is_verbose_log(self) -> bool:
+        return self.paths_data.path_logger.is_verbose()
     
 if __name__ == "__main__":
     pass
